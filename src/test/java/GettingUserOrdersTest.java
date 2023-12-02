@@ -1,7 +1,11 @@
+import api.model.OrderClient;
+import api.model.UserAuth;
+import api.order.IngredientData;
+import api.order.Order;
 import io.qameta.allure.junit4.DisplayName;
 import io.restassured.response.Response;
 import org.hamcrest.Matchers;
-import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 import java.util.List;
@@ -9,27 +13,20 @@ import java.util.Random;
 
 import static org.hamcrest.CoreMatchers.equalTo;
 
-public class GettingUserOrdersTest {
+public class GettingUserOrdersTest extends BaseTest {
     private UserAuth userAuth;
     private OrderClient orderClient;
     private String accessToken;
     Random random = new Random();
 
-    @After
-    public void cleanUp() {
-        if (accessToken != null) {
-            UserAuth.delete(accessToken);
-        }
+    @Before
+    public void setUp() {
+        accessToken = createTestUser().path("accessToken");
     }
 
     @Test
     @DisplayName("Получение списка заказов авторизованного пользователя: 200")
     public void orderListCanBeReturnedTest() {
-        User user = GettingParams.getRandomUser();
-        Response response = userAuth.create(user);
-        accessToken = response.path("accessToken");
-        response.then().assertThat().statusCode(200);
-
         List<IngredientData> ingredientList = OrderClient.getIngredientList();
         List<String> ingredients = List.of(
                 ingredientList.get(random.nextInt(ingredientList.size())).get_id(),
